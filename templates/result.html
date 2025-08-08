@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Comparison Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .results { display: flex; gap: 20px; margin: 20px 0; }
+        .image-box { text-align: center; padding: 15px; border: 1px solid #ddd; }
+        .similarity { 
+            background-color: #4CAF50; 
+            color: white; 
+            padding: 5px 10px; 
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        .actions { margin-top: 20px; }
+        .btn { 
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Comparison Results</h1>
+    
+    <div class="results">
+        <div class="image-box">
+            <h3>Your Image</h3>
+            <img src="{{ url_for('static', filename='uploads/' + uploaded_image) }}" style="max-width: 300px;">
+            <p>{{ uploaded_image }}</p>
+        </div>
+        
+        <div class="image-box">
+            <h3>Best Match</h3>
+            <img src="{{ url_for('static', filename='../Data/' + match_image) }}" style="max-width: 300px;">
+            <p>{{ match_image }}</p>
+            <p>Similarity: <span class="similarity">{{ similarity }}%</span></p>
+        </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('upload_file') }}" class="btn">Compare Another Image</a>
+    </div>
+</body>
+</html>

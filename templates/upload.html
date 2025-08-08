@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Comparison</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .flash { padding: 10px; margin: 10px 0; }
+        .error { background-color: #ffdddd; border-left: 4px solid #f44336; }
+        .info { background-color: #ddffdd; border-left: 4px solid #4CAF50; }
+        form { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .thumbnails { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+        .thumbnail { text-align: center; }
+        .thumbnail img { max-width: 100px; max-height: 100px; }
+    </style>
+</head>
+<body>
+    <h1>Image Comparison Tool</h1>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="post" enctype="multipart/form-data">
+        <h3>Upload an image to compare:</h3>
+        <input type="file" name="file" accept="image/*" required>
+        <br><br>
+        <button type="submit">Compare Images</button>
+    </form>
+    
+    <h3>Available comparison images:</h3>
+    <div class="thumbnails">
+        {% if data_files %}
+            {% for file in data_files %}
+                <div class="thumbnail">
+                    <img src="{{ url_for('static', filename='../Data/' + file) }}" alt="{{ file }}">
+                    <div>{{ file }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No images found in Data folder</p>
+        {% endif %}
+    </div>
+</body>
+</html>

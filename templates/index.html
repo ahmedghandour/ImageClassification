@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Image Classification App</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        .container { display: flex; flex-direction: column; align-items: center; }
+        .result { margin-top: 20px; font-weight: bold; }
+        img { max-width: 100%; height: auto; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Classification App</h1>
+        <hr>
+
+        <h2>Train Model</h2>
+        <p>Ensure you have a 'data' folder with subfolders for each class (e.g., 'data/cat', 'data/dog') containing images.</p>
+        <button id="trainButton">Train Model</button>
+        <div id="trainResult" class="result"></div>
+
+        <hr>
+
+        <h2>Upload Image for Classification</h2>
+        <form id="uploadForm">
+            <input type="file" id="imageInput" name="file" accept="image/*">
+            <button type="submit">Classify Image</button>
+        </form>
+        <div id="classificationResult" class="result"></div>
+        <div id="uploadedImageContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('trainButton').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('trainResult');
+            resultDiv.textContent = 'Training... This may take a moment.';
+            resultDiv.style.color = 'blue';
+
+            try {
+                const response = await fetch('/train', { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    resultDiv.textContent = data.message + 
+                                            ` | Training Accuracy: ${data.train_accuracy}` + 
+                                            ` | Test Accuracy: ${data.test_accuracy}`;
+                    resultDiv.style.color = 'green';
+                } else {
+                    resultDiv.textContent = 'Error: ' + data.error;
+                    resultDiv.style.color = 'red';
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Error connecting to the server.';
+                resultDiv.style.color = 'red';
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const resultDiv = document.getElementById('classificationResult');
+            const imageContainer = document.getElementById('uploadedImageContainer');
+            resultDiv.textContent = 'Classifying...';
+            resultDiv.style.color = 'blue';
+            imageContainer.innerHTML = '';
+
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                resultDiv.textContent = 'Please select a file first.';
+                resultDiv.style.color = 'red';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.textContent = `The image was classified as: ${data.prediction}`;
+                    resultDiv.style.color = 'green';
+                    
+                    const img = document.createElement('img');
+                    img.src = `data:${data.image_type};base64,` + data.image;
+                    img.alt = 'Uploaded Image';
+                    imageContainer.appendChild(img);
+
+                } else {
+                    resultDiv.textContent = 'Error: ' + data.error;
+                    resultDiv.style.color = 'red';
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Error connecting to the server.';
+                resultDiv.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
